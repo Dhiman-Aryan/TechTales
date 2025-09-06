@@ -327,7 +327,7 @@ const EditPost = ({ user }) => {
             <button
               type="submit"
               disabled={saving}
-              className="bg-primary text-white px-6 py-2 rounded-md hover:bg-blue-600 transition disabled:opacity-50"
+              className="bg-blue-500 text-white px-6 py-2 rounded-md hover:bg-blue-600 transition disabled:opacity-50"
             >
               {saving ? 'Updating...' : 'Update Post'}
             </button>
