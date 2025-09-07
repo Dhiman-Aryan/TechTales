@@ -23,12 +23,18 @@ app.use(cors({
 app.use(express.json());
 
 // MongoDB connection
-const MONGODB_URI = process.env.MONGO_URI || 'mongodb://localhost:27017/blogapp';
+const MONGODB_URI = process.env.MONGODB_URI || 'mongodb://localhost:27017/blogapp';
+const JWT_SECRET = process.env.JWT_SECRET;
 
-mongoose.connect(MONGODB_URI)
+mongoose.connect(MONGODB_URI , {
+  useNewUrlParser: true,
+  useUnifiedTopology: true,
+  serverSelectionTimeoutMS: 5000,
+})
   .then(() => console.log('✅ MongoDB connected successfully'))
   .catch(err => {
     console.log('❌ MongoDB connection error:', err.message);
+    console.log('💡 Connection string used:', process.env.MONGODB_URI ? 'Exists' : 'Missing');
   });
 
 // Connection event listeners
@@ -64,7 +70,8 @@ app.get('/api/health', (req, res) => {
   res.json({ 
     status: 'OK', 
     timestamp: new Date().toISOString(),
-    database: mongoose.connection.readyState === 1 ? 'Connected' : 'Not connected'
+    database: mongoose.connection.readyState === 1 ? 'Connected' : 'Not connected',
+    environment: process.env.NODE_ENV || 'development'
   });
 });
 

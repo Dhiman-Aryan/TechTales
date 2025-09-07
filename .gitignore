@@ -9,3 +9,7 @@ backend/.env
 # Build folders
 frontend/dist/
 backend/build/
+
+# MongoDb detail
+Name: Aryan-Dhiman
+Password: 6396254864@Ad
