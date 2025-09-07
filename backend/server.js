@@ -26,11 +26,7 @@ app.use(express.json());
 const MONGODB_URI = process.env.MONGODB_URI || 'mongodb://localhost:27017/blogapp';
 const JWT_SECRET = process.env.JWT_SECRET;
 
-mongoose.connect(MONGODB_URI , {
-  useNewUrlParser: true,
-  useUnifiedTopology: true,
-  serverSelectionTimeoutMS: 5000,
-})
+mongoose.connect(MONGODB_URI)
   .then(() => console.log('✅ MongoDB connected successfully'))
   .catch(err => {
     console.log('❌ MongoDB connection error:', err.message);
