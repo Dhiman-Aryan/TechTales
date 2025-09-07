@@ -25,13 +25,13 @@ dist-ssr
 
 
 # Node modules
-frontend/node_modules/
-backend/node_modules/
+
+node_modules/
 
 # Environment files
-frontend/.env
-backend/.env
+
+.env
 
 # Build folders
-frontend/dist/
-backend/build/
+
+build/

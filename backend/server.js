@@ -12,8 +12,7 @@ const app = express();
 
 // CORS Configuration - SIMPLIFIED
 app.use(cors({
-   origin: ['http://localhost:5173', 
-  'http://localhost:5174',
+   origin: [
   'VITE_API_URL=https://tech-tales-ruby.vercel.app'], // Allow both ports
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
