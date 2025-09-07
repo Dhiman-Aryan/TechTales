@@ -1,6 +1,6 @@
-# TechTales
+# TechTales Project
 
-This is a MERN full-stack  (MongoDB, Express.js, React.js, Node.js) application with separate frontend and backend directories.
+This is a full-stack MERN (MongoDB, Express.js, React.js, Node.js) application with separate frontend and backend directories.
 
 ## Structure
 
