@@ -19,6 +19,20 @@ app.use(cors({
   allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With']
 }));
 
+
+app.get('/api/debug/database', (req, res) => {
+  res.json({
+    readyState: mongoose.connection.readyState,
+    readyStateName: ['Disconnected', 'Connected', 'Connecting', 'Disconnecting'][mongoose.connection.readyState],
+    host: mongoose.connection.host,
+    name: mongoose.connection.name,
+    env: process.env.NODE_ENV,
+    hasMongoURI: !!process.env.MONGODB_URI
+  });
+});
+
+
+
 // Middleware
 app.use(express.json());
 
@@ -26,12 +40,48 @@ app.use(express.json());
 const MONGODB_URI = process.env.MONGODB_URI || 'mongodb://localhost:27017/blogapp';
 const JWT_SECRET = process.env.JWT_SECRET;
 
-mongoose.connect(MONGODB_URI)
-  .then(() => console.log('✅ MongoDB connected successfully'))
-  .catch(err => {
-    console.log('❌ MongoDB connection error:', err.message);
-    console.log('💡 Connection string used:', process.env.MONGODB_URI ? 'Exists' : 'Missing');
+// mongoose.connect(MONGODB_URI)
+//   .then(() => console.log('✅ MongoDB connected successfully'))
+//   .catch(err => {
+//     console.log('❌ MongoDB connection error:', err.message);
+//     console.log('💡 Connection string used:', process.env.MONGODB_URI ? 'Exists' : 'Missing');
+//   });
+
+// // Connection event listeners
+// mongoose.connection.on('connected', () => {
+//   console.log('✅ MongoDB connected successfully');
+// });
+
+// mongoose.connection.on('error', (err) => {
+//   console.log('❌ MongoDB connection error:', err);
+// });
+
+// mongoose.connection.on('disconnected', () => {
+//   console.log('⚠️ MongoDB disconnected');
+// });
+
+
+
+// Improved MongoDB connection with retries
+const connectWithRetry = () => {
+  console.log('🔗 Attempting MongoDB connection...');
+  
+  mongoose.connect(process.env.MONGODB_URI, {
+    serverSelectionTimeoutMS: 30000,
+    socketTimeoutMS: 45000,
+    connectTimeoutMS: 30000,
+  })
+  .then(() => {
+    console.log('✅ MongoDB connected successfully');
+  })
+  .catch((err) => {
+    console.error('❌ MongoDB connection failed:', err.message);
+    console.log('🔄 Retrying in 5 seconds...');
+    setTimeout(connectWithRetry, 5000);
   });
+};
+
+connectWithRetry();
 
 // Connection event listeners
 mongoose.connection.on('connected', () => {
@@ -39,12 +89,16 @@ mongoose.connection.on('connected', () => {
 });
 
 mongoose.connection.on('error', (err) => {
-  console.log('❌ MongoDB connection error:', err);
+  console.error('❌ MongoDB connection error:', err.message);
 });
 
 mongoose.connection.on('disconnected', () => {
-  console.log('⚠️ MongoDB disconnected');
+  console.log('⚠️ MongoDB disconnected - attempting reconnect...');
+  connectWithRetry();
 });
+
+
+
 
 // Routes
 app.use('/api/auth', require('./routes/auth'));
@@ -60,6 +114,9 @@ app.get('/', (req, res) => {
     database: mongoose.connection.readyState === 1 ? 'Connected' : 'Not connected'
   });
 });
+
+
+
 
 // Health check
 app.get('/api/health', (req, res) => {
