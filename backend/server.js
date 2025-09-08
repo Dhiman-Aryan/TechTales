@@ -20,16 +20,7 @@ app.use(cors({
 }));
 
 
-app.get('/api/debug/database', (req, res) => {
-  res.json({
-    readyState: mongoose.connection.readyState,
-    readyStateName: ['Disconnected', 'Connected', 'Connecting', 'Disconnecting'][mongoose.connection.readyState],
-    host: mongoose.connection.host,
-    name: mongoose.connection.name,
-    env: process.env.NODE_ENV,
-    hasMongoURI: !!process.env.MONGODB_URI
-  });
-});
+
 
 
 
@@ -61,43 +52,35 @@ const JWT_SECRET = process.env.JWT_SECRET;
 // });
 
 
+// Add this to your server.js
+let retryCount = 0;
+const maxRetries = 5;
 
-// Improved MongoDB connection with retries
 const connectWithRetry = () => {
-  console.log('🔗 Attempting MongoDB connection...');
-  
   mongoose.connect(process.env.MONGODB_URI, {
     serverSelectionTimeoutMS: 30000,
     socketTimeoutMS: 45000,
     connectTimeoutMS: 30000,
+    family: 4,
   })
   .then(() => {
     console.log('✅ MongoDB connected successfully');
+    retryCount = 0;
   })
   .catch((err) => {
     console.error('❌ MongoDB connection failed:', err.message);
-    console.log('🔄 Retrying in 5 seconds...');
-    setTimeout(connectWithRetry, 5000);
+    retryCount++;
+    
+    if (retryCount < maxRetries) {
+      console.log(`🔄 Retrying connection (${retryCount}/${maxRetries})...`);
+      setTimeout(connectWithRetry, 5000);
+    } else {
+      console.error('💥 Maximum retry attempts reached');
+    }
   });
 };
 
 connectWithRetry();
-
-// Connection event listeners
-mongoose.connection.on('connected', () => {
-  console.log('✅ MongoDB connected successfully');
-});
-
-mongoose.connection.on('error', (err) => {
-  console.error('❌ MongoDB connection error:', err.message);
-});
-
-mongoose.connection.on('disconnected', () => {
-  console.log('⚠️ MongoDB disconnected - attempting reconnect...');
-  connectWithRetry();
-});
-
-
 
 
 // Routes
