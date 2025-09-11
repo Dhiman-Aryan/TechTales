@@ -10,7 +10,7 @@ const WritePost = ({ user }) => {
     excerpt: '',
     category: 'Technology',
     tags: '',
-    featuredImage: '',
+    featuredImage: 'null',
     isPublished: true
   });
   const [loading, setLoading] = useState(false);

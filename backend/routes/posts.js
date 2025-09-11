@@ -137,14 +137,13 @@ router.get('/search', async (req, res) => {
     res.status(500).json({ message: 'Server error', error: error.message });
   }
 });
-
 // Create new post (protected)
 router.post('/', auth, async (req, res) => {
   try {
-    const { title, content, excerpt, category, tags, isPublished = true, featuredImage  } = req.body;
+    const { title, content, excerpt, category, tags, isPublished = true, featuredImage } = req.body;
     
     console.log('Received post data:', {
-      title, excerpt, category, tags, isPublished, featuredImage ,
+      title, excerpt, category, tags, isPublished, featuredImage,
       contentLength: content?.length
     });
 
@@ -175,9 +174,9 @@ router.post('/', auth, async (req, res) => {
       slug,
       category,
       tags: tags ? tags.split(',').map(tag => tag.trim()) : [],
-      author: authorId, // Use the ID from auth middleware
+      author: authorId,
       isPublished,
-       featuredImage: featuredImage || null
+      featuredImage: featuredImage || null // ← ADD THIS LINE
     });
 
     await post.save();
@@ -189,7 +188,8 @@ router.post('/', auth, async (req, res) => {
       hasFeaturedImage: !!post.featuredImage,
       featuredImage: post.featuredImage
     });
-     res.status(201).json(post);
+    
+    res.status(201).json(post);
 
   } catch (error) {
     console.error('❌ Error creating post:', error);
@@ -260,7 +260,7 @@ router.put('/:id', auth, async (req, res) => {
     }
 
     
-    if (title !== undefined) {
+    if (title ) {
       post.title = title;
       
       post.slug = title.toLowerCase()
